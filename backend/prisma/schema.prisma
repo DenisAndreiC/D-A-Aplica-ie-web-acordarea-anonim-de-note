@@ -1,0 +1,74 @@
+// Aceasta este configurația pentru baza de date
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Definim rolurile posibile (Student sau Profesor)
+enum Role {
+  STUDENT
+  PROFESSOR
+}
+
+// 2. Tabela Utilizatori
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   
+  fullName  String
+  role      Role     @default(STUDENT)
+  
+  // Relații:
+  projects       Project[]       @relation("ProjectOwner") // Proiectele mele
+  juryAssignments JuryAssignment[] // Proiectele unde sunt jurat
+  gradesGiven    Grade[]         // Notele pe care le-am dat
+}
+
+// 3. Tabela Proiecte
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  ownerId     Int
+  owner       User     @relation("ProjectOwner", fields: [ownerId], references: [id])
+  
+  deliverables Deliverable[]
+  jury         JuryAssignment[]
+}
+
+// 4. Tabela Livrabile (ex: Link GitHub, Video)
+model Deliverable {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  project     Project  @relation(fields: [projectId], references: [id])
+  resourceUrl String   // Link-ul efectiv
+  description String?
+  
+  grades      Grade[]
+}
+
+// 5. Tabela Jurizare (Cine notează pe cine)
+model JuryAssignment {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+// 6. Tabela Note
+model Grade {
+  id            Int         @id @default(autoincrement())
+  value         Float       // Nota (ex: 8.50)
+  deliverableId Int
+  deliverable   Deliverable @relation(fields: [deliverableId], references: [id])
+  
+  evaluatorId   Int
+  evaluator     User        @relation(fields: [evaluatorId], references: [id])
+}
