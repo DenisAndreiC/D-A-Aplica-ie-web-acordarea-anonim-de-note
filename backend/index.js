@@ -5,12 +5,14 @@ const app = express();
 //importurile pt route
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const deliverableRoutes= require('./routes/deliverableRoutes');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);//pt routes
+app.use('/api/deliverables', deliverableRoutes);
 
 
 
