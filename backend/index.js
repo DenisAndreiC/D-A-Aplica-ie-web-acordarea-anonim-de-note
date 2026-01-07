@@ -6,6 +6,8 @@ const app = express();
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const deliverableRoutes= require('./routes/deliverableRoutes');
+const juryRoutes= require('./routes/juryRoutes');
+const gradeRoutes= require('./routes/gradeRoutes');
 
 // Middleware
 app.use(cors());
@@ -13,11 +15,13 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);//pt routes
 app.use('/api/deliverables', deliverableRoutes);
-
+app.use('/api/jury', juryRoutes);
+app.use('/api/grades',gradeRoutes);
 
 
 //utilizam rute
 app.use('/api/users', userRoutes);
+
 
 // ruta de baza (pt test rapid)
 app.get('/', (req, res) => {
