@@ -3,24 +3,24 @@ const cors = require('cors');
 const app = express();
 
 //importurile pt route
+const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
-const deliverableRoutes= require('./routes/deliverableRoutes');
-const juryRoutes= require('./routes/juryRoutes');
-const gradeRoutes= require('./routes/gradeRoutes');
+const deliverableRoutes = require('./routes/deliverableRoutes');
+const juryRoutes = require('./routes/juryRoutes');
+const gradeRoutes = require('./routes/gradeRoutes');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Rute
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);//pt routes
+app.use('/api/projects', projectRoutes);
 app.use('/api/deliverables', deliverableRoutes);
 app.use('/api/jury', juryRoutes);
-app.use('/api/grades',gradeRoutes);
-
-
-//utilizam rute
-app.use('/api/users', userRoutes);
+app.use('/api/grades', gradeRoutes);
 
 
 // ruta de baza (pt test rapid)
