@@ -32,7 +32,7 @@ exports.addGrade = async (req, res) => {
     });
 
     if (!isJury) {
-      return res.status(403).json({ error: 'Nu ai dreptul sa notezi acest proiect (nu eeti jurat).' });
+      return res.status(403).json({ error: 'Nu ai dreptul să notezi acest proiect (nu ești jurat).' });
     }
 
     // daca totul e ok salvam nota

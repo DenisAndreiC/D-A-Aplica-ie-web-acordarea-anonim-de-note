@@ -50,6 +50,8 @@ model Deliverable {
   resourceUrl String   // Link-ul efectiv
   description String?
   
+  createdAt   DateTime @default(now())
+
   grades      Grade[]
 }
 
