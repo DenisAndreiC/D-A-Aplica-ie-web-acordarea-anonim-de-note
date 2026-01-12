@@ -83,8 +83,33 @@ exports.getProjectAverage = async (req, res) => {
       return res.json({ average: 0, count: 0 });
     }
 
-    const sum = grades.reduce((acc, g) => acc + g.value, 0);
-    const average = sum / grades.length;
+    // Algoritm olimpic: eliminam min si max daca avem suficiente note (>= 3)
+    // Daca avem < 3 note, calculam media simpla
+    let processingGrades = grades.map(g => g.value);
+
+    if (processingGrades.length >= 3) {
+      const min = Math.min(...processingGrades);
+      const max = Math.max(...processingGrades);
+
+      // Eliminam o singura data minimul si maximul
+      let minRemoved = false;
+      let maxRemoved = false;
+
+      processingGrades = processingGrades.filter(g => {
+        if (!minRemoved && g === min) {
+          minRemoved = true;
+          return false;
+        }
+        if (!maxRemoved && g === max) {
+          maxRemoved = true;
+          return false;
+        }
+        return true;
+      });
+    }
+
+    const sum = processingGrades.reduce((acc, val) => acc + val, 0);
+    const average = sum / processingGrades.length;
 
     res.json({ average: parseFloat(average.toFixed(2)), count: grades.length });
 
