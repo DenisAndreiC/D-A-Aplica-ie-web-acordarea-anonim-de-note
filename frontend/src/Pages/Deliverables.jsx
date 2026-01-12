@@ -75,7 +75,7 @@ export default function Deliverables() {
       <div className="max-w-5xl mx-auto px-6 -mt-8 relative z-10">
         <div className="grid md:grid-cols-3 gap-8">
 
-          {/* Coloana Stanga: Lista Livrabile */}
+          {/* coloana stanga: lista livrabile */}
           <div className="md:col-span-2 space-y-4">
             <div className="bg-white rounded-2xl shadow-xl shadow-orange-100/50 border border-orange-100 overflow-hidden">
               <div className="bg-gradient-to-r from-orange-50 to-pink-50 px-6 py-4 border-b border-orange-100 flex justify-between items-center">
@@ -125,7 +125,7 @@ export default function Deliverables() {
             </div>
           </div>
 
-          {/* Coloana Dreapta: Formular Adaugare - DOAR PENTRU PROPRIETAR */}
+          {/* coloana dreapta: formular adaugare (doar proprietar) */}
           {project?.ownerId == currentUser.id && (
             <div>
               <div className="bg-white rounded-2xl shadow-xl shadow-rose-100/50 border border-rose-100 p-6 sticky top-6">

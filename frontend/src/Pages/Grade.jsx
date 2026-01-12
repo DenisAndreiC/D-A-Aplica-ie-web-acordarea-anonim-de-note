@@ -9,7 +9,7 @@ export default function Grade() {
   const [value, setValue] = useState("");
   const [message, setMessage] = useState("");
 
-  // TODO: Ar trebui sa aducem si detalii despre livrabil aici, momentan presupunem ca utilizatorul stie ce noteaza
+  // todo: detalii livrabil
   // sau am putea modifica backend-ul sa returneze si livrabilul la GET /api/grades/:id
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function Grade() {
           </div>
         </div>
 
-        {/* Istoric Note - Optional pentru jurat sa vada ce au dat altii? Sau doar notele lui? Momentan vede tot */}
+        {/* istoric note (cine a notat) */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <h2 className="font-bold text-gray-800 mb-4 border-b pb-2">Istoric Note</h2>
           {grades.length === 0 ? (

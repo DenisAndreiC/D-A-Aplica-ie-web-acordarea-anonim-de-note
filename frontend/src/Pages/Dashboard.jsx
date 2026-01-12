@@ -142,12 +142,12 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-orange-50/30 pb-20">
-      {/* Top Banner Gradient - Pastel */}
+      {/* top banner gradient - pastel */}
       <div className={`h-64 ${isProfessor ? 'bg-gradient-to-r from-rose-300 to-orange-200' : 'bg-gradient-to-br from-rose-300 to-orange-200'} w-full absolute top-0 left-0 z-0 shadow-sm opacity-90`}></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Header Content */}
+        {/* header content */}
         <div className="pt-12 pb-12 text-white flex justify-between items-end">
           <div>
             <p className="text-orange-100 font-medium tracking-wide text-xs uppercase mb-2">Bine ai venit</p>

@@ -23,11 +23,11 @@ export default function Login() {
     try {
       const res = await api.post("/api/auth/login", { email, password });
 
-      // Salvam token-ul si user-ul
+      // salvam token si user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // Redirect catre dashboard
+      // redirect catre dashboard
       navigate("/dashboard");
     } catch (err) {
       setError(

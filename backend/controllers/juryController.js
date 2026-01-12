@@ -1,4 +1,4 @@
-//validarea ca studentul sa nu fie proprietarul proiectului
+// validarea ca studentul sa nu fie proprietarul proiectului
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -63,7 +63,7 @@ exports.getProjectJury = async (req, res) => {
   }
 };
 
-// Vezi proiectele unde eu sunt jurat
+// vezi proiectele unde eu sunt jurat
 exports.getJuryProjects = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -71,7 +71,7 @@ exports.getJuryProjects = async (req, res) => {
       where: { userId: parseInt(userId) },
       include: { project: true }
     });
-    // Returnam direct proiectele
+    // returnam direct proiectele
     const projects = assignments.map(a => a.project);
     res.json(projects);
   } catch (error) {
@@ -80,7 +80,7 @@ exports.getJuryProjects = async (req, res) => {
   }
 };
 
-// Alocare automata juriu (3 studenti random)
+// alocare automata juriu (3 studenti random)
 exports.autoAssignJury = async (req, res) => {
   try {
     const { projectId } = req.body;
@@ -88,7 +88,7 @@ exports.autoAssignJury = async (req, res) => {
 
     if (!project) return res.status(404).json({ error: 'Proiectul nu exista' });
 
-    // Luam toti studentii, exclusiv ownerul
+    // luam toti studentii, exclusiv ownerul
     const candidates = await prisma.user.findMany({
       where: {
         role: 'STUDENT',
@@ -100,11 +100,11 @@ exports.autoAssignJury = async (req, res) => {
       return res.status(400).json({ error: 'Nu sunt destui studenti pentru a forma un juriu (minim 3).' });
     }
 
-    // Algoritm simplu de randomizare (Fisher-Yates shuffle ar fi ideal, dar simplificam)
+    // algoritm simplu de randomizare (fisher-yates shuffle ar fi ideal, dar simplificam)
     const shuffled = candidates.sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, 3);
 
-    // Cream asignările
+    // cream asignarile
     const assignments = await Promise.all(
       selected.map(user =>
         prisma.juryAssignment.create({
@@ -112,7 +112,7 @@ exports.autoAssignJury = async (req, res) => {
             userId: user.id,
             projectId: parseInt(projectId)
           }
-        }).catch(() => null) // Ignoram daca e deja asignat (unique constraint, daca ar exista)
+        }).catch(() => null) // ignoram daca e deja asignat
       )
     );
 

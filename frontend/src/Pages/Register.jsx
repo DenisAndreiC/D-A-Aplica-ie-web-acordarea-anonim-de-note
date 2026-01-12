@@ -17,7 +17,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Daca e deja logat, nu are ce cauta la register
+  // daca e deja logat, redirect la dashboard
   useEffect(() => {
     if (localStorage.getItem("token")) {
       navigate("/dashboard");
@@ -43,7 +43,7 @@ export default function Register() {
         secretCode: formData.secretCode
       });
 
-      // DEBUG: Verify role
+      // verificare rol
       if (formData.secretCode?.trim().toLowerCase() === "profesor" && res.data.role !== "PROFESSOR") {
         setError("DEBUG: Serverul a ignorat codul secret! Rol primit: " + res.data.role);
         return;
