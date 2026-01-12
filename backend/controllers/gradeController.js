@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 
 exports.addGrade = async (req, res) => {
   try {
-    const { evaluatorId, deliverableId, value } = req.body;
+    const { deliverableId, value } = req.body;
+    const evaluatorId = req.user.userId;
 
     // validare nota in 1 si 10
     if (value < 1 || value > 10) {
@@ -61,5 +62,34 @@ exports.getDeliverableGrades = async (req, res) => {
     res.json(grades);
   } catch (error) {
     res.status(500).json({ error: 'Eroare server' });
+  }
+};
+
+// Calculeaza media notelor pentru un proiect
+exports.getProjectAverage = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Luam toate notele livrabilelor acestui proiect
+    const grades = await prisma.grade.findMany({
+      where: {
+        deliverable: {
+          projectId: parseInt(projectId)
+        }
+      }
+    });
+
+    if (grades.length === 0) {
+      return res.json({ average: 0, count: 0 });
+    }
+
+    const sum = grades.reduce((acc, g) => acc + g.value, 0);
+    const average = sum / grades.length;
+
+    res.json({ average: parseFloat(average.toFixed(2)), count: grades.length });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Eroare la calculul mediei' });
   }
 };

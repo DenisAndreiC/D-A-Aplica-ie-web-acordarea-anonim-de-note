@@ -42,54 +42,68 @@ export default function Grade() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h1 className="text-2xl font-bold mb-4">Acordă Notă</h1>
-        <p className="text-gray-600 mb-6">
-          Notezi livrabilul cu ID: <strong>{deliverableId}</strong>
-        </p>
+    <div className="min-h-screen bg-indigo-50/30 p-6 flex items-center justify-center">
+      <div className="max-w-md w-full space-y-6">
 
-        {message && <div className="p-3 bg-blue-50 text-blue-700 rounded mb-4">{message}</div>}
+        <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1 transition-colors">
+          &larr; Înapoi
+        </button>
 
-        <form onSubmit={handleGrade} className="space-y-4">
-          <div>
-            <label className="block font-medium mb-1">Nota (1.00 - 10.00)</label>
-            <input
-              type="number"
-              step="0.01"
-              min="1"
-              max="10"
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-              value={value}
-              onChange={e => setValue(e.target.value)}
-              required
-            />
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="bg-blue-600 px-6 py-4">
+            <h1 className="text-xl font-bold text-white">Acordă Notă</h1>
+            <p className="text-blue-100 text-sm opacity-90">Evaluezi livrabilul #{deliverableId}</p>
           </div>
-          <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-            Trimite Nota
-          </button>
-        </form>
-      </div>
 
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-bold mb-4">Istoric Note (Pentru acest livrabil)</h2>
-        {grades.length === 0 ? (
-          <p className="text-gray-500">Nu sunt note acordate încă.</p>
-        ) : (
-          <ul className="space-y-2">
-            {grades.map(g => (
-              <li key={g.id} className="border-b pb-2 flex justify-between">
-                <span>Nota: <strong>{g.value}</strong></span>
-                <span className="text-sm text-gray-500">{new Date(g.createdAt).toLocaleDateString()}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+          <div className="p-6 space-y-6">
+            {message && (
+              <div className={`p-3 rounded-lg text-sm text-center ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                {message}
+              </div>
+            )}
 
-      <button onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-900">
-        &larr; Înapoi
-      </button>
+            <form onSubmit={handleGrade} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Nota ta (1.00 - 10.00)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    max="10"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition"
+                    placeholder="10.00"
+                    value={value}
+                    onChange={e => setValue(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95">
+                Trimite Nota
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Istoric Note - Optional pentru jurat sa vada ce au dat altii? Sau doar notele lui? Momentan vede tot */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <h2 className="font-bold text-gray-800 mb-4 border-b pb-2">Istoric Note</h2>
+          {grades.length === 0 ? (
+            <p className="text-gray-400 text-center text-sm py-2">Fără note acordate.</p>
+          ) : (
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+              {grades.map(g => (
+                <div key={g.id} className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg">
+                  <span className="text-sm font-medium text-gray-600">{new Date(g.createdAt).toLocaleDateString()}</span>
+                  <span className="font-bold text-blue-600">{g.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }

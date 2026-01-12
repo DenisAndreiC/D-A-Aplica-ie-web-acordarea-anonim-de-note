@@ -8,16 +8,22 @@ import Grade from "./Pages/Grade.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 
 export default function App() {
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="border-b bg-white">
         <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
-          <div className="font-semibold">Acordare anonimă de note</div>
-          <nav className="flex gap-4 text-sm">
-            <Link className="hover:underline" to="/login">Login</Link>
-            <Link className="hover:underline" to="/register">Register</Link>
-            <Link className="hover:underline" to="/dashboard">Dashboard</Link>
-            <Link className="hover:underline" to="/projects">Projects</Link>
+          <Link to="/" className="font-semibold text-lg text-blue-900">Acordare anonimă de note</Link>
+          <nav className="flex gap-4 text-sm font-medium">
+            {!user ? (
+              <>
+                <Link className="px-3 py-2 rounded hover:bg-gray-100 transition" to="/login">Autentificare</Link>
+                <Link className="px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm" to="/register">Înregistrare</Link>
+              </>
+            ) : (
+              <Link className="px-3 py-2 rounded hover:bg-gray-100 transition" to="/dashboard">Dashboard</Link>
+            )}
           </nav>
         </div>
       </header>

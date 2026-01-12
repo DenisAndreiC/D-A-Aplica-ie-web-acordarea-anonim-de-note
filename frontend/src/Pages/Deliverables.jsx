@@ -40,75 +40,112 @@ export default function Deliverables() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Livrabile Proiect #{projectId}</h1>
-        <button onClick={() => navigate("/dashboard")} className="text-gray-600 hover:text-gray-900">
-          &larr; Înapoi la Dashboard
-        </button>
-      </div>
+    <div className="min-h-screen bg-indigo-50/30 p-6">
+      <div className="max-w-5xl mx-auto space-y-6">
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Lista Livrabile */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Resurse Încărcate</h2>
-
-          {deliverables.length === 0 ? (
-            <p className="text-gray-500 text-sm">Nu ai încărcat nimic momentan.</p>
-          ) : (
-            <ul className="space-y-4">
-              {deliverables.map((d) => (
-                <li key={d.id} className="border-b pb-2 last:border-0">
-                  <a
-                    href={d.resourceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 font-medium hover:underline block truncate"
-                  >
-                    {d.resourceUrl}
-                  </a>
-                  <p className="text-sm text-gray-700 mt-1">{d.description}</p>
-                  <span className="text-xs text-gray-400">
-                    Adăugat pe {new Date(d.createdAt).toLocaleDateString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Livrabile Proiect</h1>
+            <p className="text-gray-500 text-sm">Gestionează resursele și demo-urile pentru acest proiect.</p>
+          </div>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="text-gray-600 hover:text-blue-600 font-medium text-sm flex items-center gap-1 transition-colors"
+          >
+            &larr; Înapoi la Dashboard
+          </button>
         </div>
 
-        {/* Adauga Livrabil */}
-        <div className="bg-white p-6 rounded-lg shadow h-fit">
-          <h2 className="text-xl font-semibold mb-4">Adaugă Resursă</h2>
-          {message && <div className="mb-3 p-2 bg-blue-50 text-blue-700 text-sm rounded">{message}</div>}
+        <div className="grid md:grid-cols-3 gap-8">
 
-          <form onSubmit={handleAdd} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Link Resursă (Video/Drive/GitHub)</label>
-              <input
-                type="url"
-                required
-                className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="https://..."
-                value={formData.resourceUrl}
-                onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
-              />
+          {/* Coloana Stanga: Lista Livrabile */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+                <h2 className="font-bold text-gray-700">Resurse Încărcate</h2>
+              </div>
+
+              <div className="p-6">
+                {deliverables.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    Nu există livrabile încărcate.
+                  </div>
+                ) : (
+                  <ul className="space-y-4">
+                    {deliverables.map((d) => (
+                      <li key={d.id} className="group border border-gray-100 rounded-lg p-4 hover:border-blue-100 hover:bg-blue-50/30 transition-all">
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="overflow-hidden">
+                            <a
+                              href={d.resourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 font-semibold hover:underline truncate block"
+                            >
+                              {d.resourceUrl}
+                            </a>
+                            <p className="text-sm text-gray-600 mt-1">{d.description}</p>
+                            <span className="text-xs text-gray-400 mt-2 block">
+                              {new Date(d.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => navigate(`/grade/${d.id}`)}
+                            className="shrink-0 bg-white border border-green-200 text-green-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-50 hover:border-green-300 transition shadow-sm"
+                          >
+                            Notează
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Descriere scurtă</label>
-              <textarea
-                className="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                rows="2"
-                required
-                placeholder="Ex: Demo video funcționalitate login..."
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              ></textarea>
+          </div>
+
+          {/* Coloana Dreapta: Formular Adaugare */}
+          <div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
+              <h2 className="font-bold text-gray-800 mb-4">Adaugă Resursă</h2>
+              {message && (
+                <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                  {message}
+                </div>
+              )}
+
+              <form onSubmit={handleAdd} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Link (Video/Repo)</label>
+                  <input
+                    type="url"
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                    placeholder="https://..."
+                    value={formData.resourceUrl}
+                    onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Descriere</label>
+                  <textarea
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                    rows="3"
+                    required
+                    placeholder="Ce reprezintă acest link?"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  ></textarea>
+                </div>
+                <button className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                  Adaugă
+                </button>
+              </form>
             </div>
-            <button className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
-              Încarcă Livrabil
-            </button>
-          </form>
+          </div>
+
         </div>
       </div>
     </div>

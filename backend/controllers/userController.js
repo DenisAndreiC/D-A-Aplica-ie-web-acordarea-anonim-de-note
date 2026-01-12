@@ -9,25 +9,41 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_student';
 // 1. Inregistrare utilizator nou
 exports.register = async (req, res) => {
   try {
-    const { email, password, fullName, role } = req.body;
+    const { fullName, email, password, secretCode } = req.body;
+    console.log("REGISTER REQUEST BODY:", req.body); // DEBUG
+    console.log("Secret Code extracted:", secretCode); // DEBUG
 
-    // Verificam daca exista deja
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email-ul este deja folosit.' });
+    // basic validation
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ error: 'Toate câmpurile sunt obligatorii' });
     }
 
-    // Criptam parola
+    // check existing user
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // hash pass
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Determine role based on secret code
+    let role = 'STUDENT';
+    if (secretCode && secretCode.trim().toLowerCase() === 'profesor') {
+      role = 'PROFESSOR';
+    }
+    console.log("Calculated Role:", role); // DEBUG
+
+    // create user
     const newUser = await prisma.user.create({
       data: {
+        fullName,
         email,
         password: hashedPassword,
-        fullName,
-        role: role || 'STUDENT'
+        role: role
       }
     });
+    console.log("Created User Role:", newUser.role); // DEBUG
 
     // Nu trimitem parola inapoi
     const { password: _, ...userWithoutPassword } = newUser;
