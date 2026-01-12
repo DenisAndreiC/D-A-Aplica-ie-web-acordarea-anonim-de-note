@@ -7,55 +7,55 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [createData, setCreateData] = useState({ title: "", description: "", githubRepo: "" });
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const isProfessor = user.role === 'PROFESSOR';
+  // ... (state existing)
+  const [juryProjects, setJuryProjects] = useState([]);
 
   useEffect(() => {
     fetchProjects();
+    fetchJuryProjects();
   }, []);
 
-  async function fetchProjects() {
+  // ... (fetchProjects existing)
+
+  async function fetchJuryProjects() {
     try {
-      // Daca e profesor, luam toate proiectele. Daca e student, doar ale lui.
-      const endpoint = isProfessor ? "/api/projects" : "/api/projects/my-projects";
-      const res = await api.get(endpoint);
-      setProjects(res.data);
+      const res = await api.get("/api/jury/my-jury-projects");
+      setJuryProjects(res.data);
     } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      console.error("Eroare incarcare proiecte juriu", err);
     }
   }
 
-  async function handleCreate(e) {
-    e.preventDefault();
-    setMessage("");
-    try {
-      await api.post("/api/projects", createData);
-      setMessage("Proiect creat cu succes!");
-      setCreateData({ title: "", description: "", githubRepo: "" });
-      fetchProjects(); // Refresh list
-    } catch (err) {
-      setMessage(err.response?.data?.error || "Eroare la creare proiect.");
-    }
-  }
-
-  if (loading) return <div>Se încarcă...</div>;
+  // ... (handlCreate existing)
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-white p-6 rounded-xl shadow border-l-4 border-blue-600">
-        <h1 className="text-2xl font-bold text-gray-800">Salut, {user.fullName}! ({user.role})</h1>
-        <p className="text-gray-500">
-          {isProfessor
-            ? "Aici poți vedea toate proiectele studenților."
-            : "Bun venit în panoul de control."}
-        </p>
-      </div>
+      {/* Header existing ... */}
 
+      {/* Sectiune Juriu - Apare doar daca ai proiecte de notat */}
+      {juryProjects.length > 0 && (
+        <div className="bg-yellow-50 p-6 rounded-xl shadow border border-yellow-200">
+          <h2 className="text-xl font-bold text-yellow-800 mb-4">Proiecte de Notat ({juryProjects.length})</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {juryProjects.map(p => (
+              <div key={p.id} className="bg-white p-4 rounded shadow-sm flex justify-between items-center">
+                <div>
+                  <h3 className="font-bold">{p.title}</h3>
+                  <p className="text-sm text-gray-600">{p.description}</p>
+                </div>
+                <button
+                  onClick={() => navigate(`/projects/${p.id}/deliverables`)} // Momentan trimitem la livrabile, de acolo se va nota
+                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                >
+                  Notează
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Grid Principal */}
       <div className={`grid ${isProfessor ? 'grid-cols-1' : 'md:grid-cols-3'} gap-6`}>
         {/* Coloana Proiecte: ocupa tot spatiul pt profesori, sau 2/3 pt studenti */}
         <div className={`${isProfessor ? '' : 'md:col-span-2'} space-y-4`}>

@@ -62,3 +62,20 @@ exports.getProjectJury = async (req, res) => {
     res.status(500).json({ error: 'Eroare server' });
   }
 };
+
+// Vezi proiectele unde eu sunt jurat
+exports.getJuryProjects = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const assignments = await prisma.juryAssignment.findMany({
+      where: { userId: parseInt(userId) },
+      include: { project: true }
+    });
+    // Returnam direct proiectele
+    const projects = assignments.map(a => a.project);
+    res.json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Eroare la preluarea proiectelor de notat' });
+  }
+};
