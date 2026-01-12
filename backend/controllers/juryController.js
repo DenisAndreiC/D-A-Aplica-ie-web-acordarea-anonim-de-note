@@ -79,3 +79,47 @@ exports.getJuryProjects = async (req, res) => {
     res.status(500).json({ error: 'Eroare la preluarea proiectelor de notat' });
   }
 };
+
+// Alocare automata juriu (3 studenti random)
+exports.autoAssignJury = async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    const project = await prisma.project.findUnique({ where: { id: parseInt(projectId) } });
+
+    if (!project) return res.status(404).json({ error: 'Proiectul nu exista' });
+
+    // Luam toti studentii, exclusiv ownerul
+    const candidates = await prisma.user.findMany({
+      where: {
+        role: 'STUDENT',
+        NOT: { id: project.ownerId }
+      }
+    });
+
+    if (candidates.length < 3) {
+      return res.status(400).json({ error: 'Nu sunt destui studenti pentru a forma un juriu (minim 3).' });
+    }
+
+    // Algoritm simplu de randomizare (Fisher-Yates shuffle ar fi ideal, dar simplificam)
+    const shuffled = candidates.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 3);
+
+    // Cream asignările
+    const assignments = await Promise.all(
+      selected.map(user =>
+        prisma.juryAssignment.create({
+          data: {
+            userId: user.id,
+            projectId: parseInt(projectId)
+          }
+        }).catch(() => null) // Ignoram daca e deja asignat (unique constraint, daca ar exista)
+      )
+    );
+
+    res.json({ message: 'Juriu alocat cu succes!', jurors: selected.map(u => u.email) });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Eroare la alocarea juriului.' });
+  }
+};
