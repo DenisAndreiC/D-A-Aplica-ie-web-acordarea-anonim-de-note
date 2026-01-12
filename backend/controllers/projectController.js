@@ -1,11 +1,13 @@
 const { PrismaClient } = require('@prisma/client');
-const axios = require('axios'); 
+const axios = require('axios');
 const prisma = new PrismaClient();
 
 // 1. Creem un proiect (cu verificare github )
 exports.createProject = async (req, res) => {
   try {
-    const { title, description, ownerId, githubRepo } = req.body;
+    const { title, description, githubRepo } = req.body;
+    // Luam ownerId din token-ul userului logat (atasat de middleware)
+    const ownerId = req.user.userId;
 
     // Daca utilizatorul trimite un repo, verificam daca exista
     let externalData = null;
@@ -13,24 +15,23 @@ exports.createProject = async (req, res) => {
       try {
         const response = await axios.get(`https://api.github.com/repos/${githubRepo}`);
         externalData = {
-            stars: response.data.stargazers_count,
-            language: response.data.language
+          stars: response.data.stargazers_count,
+          language: response.data.language
         };
         console.log("Date de pe GitHub:", externalData);
       } catch (err) {
         console.log("Repo-ul GitHub nu a fost gasit sau eroare API");
       }
     }
-    //
-    //
+
     // Salvam în baza noastra (inclusiv descrierea poate contine info de la GitHub)
     const newProject = await prisma.project.create({
       data: {
         title,
-        description: externalData 
-          ? `${description} | GitHub Stars: ${externalData.stars} (${externalData.language})` 
+        description: externalData
+          ? `${description} | GitHub Stars: ${externalData.stars} (${externalData.language})`
           : description,
-        ownerId: parseInt(ownerId) //trebuie sa fie numar
+        ownerId: parseInt(ownerId)
       }
     });
 
@@ -41,14 +42,32 @@ exports.createProject = async (req, res) => {
   }
 };
 
-// 2. pt a vedea toate proiectele
+// 2. pt a vedea toate proiectele (Administrator/Profesor)
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
-      include: { owner: true }//pt adus detaliile stud care a facut proiectul
+      include: { owner: true }
     });
     res.json(projects);
   } catch (error) {
     res.status(500).json({ error: 'Eroare server' });
+  }
+};
+
+// 3. Proiectele mele (Student)
+exports.getMyProjects = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const projects = await prisma.project.findMany({
+      where: { ownerId: userId },
+      include: {
+        deliverables: true,  // Sa vedem ce am incarcat
+        jury: true           // Sa vedem cine ne noteaza (daca e cazul)
+      }
+    });
+    res.json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Eroare la preluarea proiectelor' });
   }
 };
