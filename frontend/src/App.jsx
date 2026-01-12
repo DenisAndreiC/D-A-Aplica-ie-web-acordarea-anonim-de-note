@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import Login from "./Pages/Login.jsx";
 import Register from "./Pages/Register.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
@@ -8,6 +8,7 @@ import Grade from "./Pages/Grade.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 
 export default function App() {
+  const location = useLocation(); // Force re-render on route change
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
   return (
