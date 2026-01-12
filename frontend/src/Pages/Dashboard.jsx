@@ -15,6 +15,17 @@ export default function Dashboard() {
     fetchJuryProjects();
   }, []);
 
+  async function handleAutoAssign(projectId) {
+    if (!window.confirm("Sigur vrei să aloci automat juriul pentru acest proiect?")) return;
+
+    try {
+      const res = await api.post("/api/jury/auto-assign", { projectId });
+      alert(res.data.message + "\nJurați: " + res.data.jurors.join(", "));
+    } catch (err) {
+      alert(err.response?.data?.error || "Eroare la alocare.");
+    }
+  }
+
   // ... (fetchProjects existing)
 
   async function fetchJuryProjects() {
@@ -91,8 +102,16 @@ export default function Dashboard() {
                     >
                       Vezi Livrabile &rarr;
                     </button>
-                    {/* Placeholder pentru buton de notare (doar pt profesor/juriu) */}
-                    {/* {isProfessor && <button className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded">Notează</button>} */}
+
+                    {/* Buton Alocare Juriu (DOAR PROFESOR) */}
+                    {isProfessor && (
+                      <button
+                        onClick={() => handleAutoAssign(p.id)}
+                        className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 border border-purple-200"
+                      >
+                        🎲 Alocă Juriu
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
