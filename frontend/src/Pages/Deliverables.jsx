@@ -13,19 +13,25 @@ export default function Deliverables() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
-    fetchProjectAndDeliverables();
+    fetchProject();
+    fetchDeliverables();
   }, [projectId]);
 
-  async function fetchProjectAndDeliverables() {
+  async function fetchProject() {
     try {
-      const [delRes, projRes] = await Promise.all([
-        api.get(`/api/deliverables/project/${projectId}`),
-        api.get(`/api/projects/${projectId}`)
-      ]);
-      setDeliverables(delRes.data);
-      setProject(projRes.data);
+      const res = await api.get(`/api/projects/${projectId}`);
+      setProject(res.data);
     } catch (error) {
-      console.error("Eroare incarcare date:", error);
+      console.error("Eroare incarcare proiect:", error);
+    }
+  }
+
+  async function fetchDeliverables() {
+    try {
+      const res = await api.get(`/api/deliverables/project/${projectId}`);
+      setDeliverables(res.data);
+    } catch (error) {
+      console.error("Eroare incarcare livrabile:", error);
     }
   }
 
@@ -41,7 +47,8 @@ export default function Deliverables() {
       setFormData({ resourceUrl: "", description: "" });
       fetchDeliverables();
     } catch (error) {
-      setMessage("Eroare la adăugare livrabil.");
+      const errorMsg = error.response?.data?.error || "Eroare la adăugare livrabil.";
+      setMessage(errorMsg);
       console.error(error);
     }
   }
