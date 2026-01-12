@@ -1,5 +1,5 @@
-//doar un jurat desemnat poata da o nota
-//nota intre 1 si 10
+// doar un jurat desemnat poata da o nota
+// nota intre 1 si 10
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -52,7 +52,7 @@ exports.addGrade = async (req, res) => {
   }
 };
 
-// Obtine toate notele
+// obtine toate notele
 exports.getDeliverableGrades = async (req, res) => {
   try {
     const { deliverableId } = req.params;
@@ -65,12 +65,12 @@ exports.getDeliverableGrades = async (req, res) => {
   }
 };
 
-// Calculeaza media notelor pentru un proiect
+// calculeaza media notelor pentru un proiect
 exports.getProjectAverage = async (req, res) => {
   try {
     const { projectId } = req.params;
 
-    // Luam toate notele livrabilelor acestui proiect
+    // luam toate notele livrabilelor acestui proiect
     const grades = await prisma.grade.findMany({
       where: {
         deliverable: {
@@ -83,15 +83,15 @@ exports.getProjectAverage = async (req, res) => {
       return res.json({ average: 0, count: 0 });
     }
 
-    // Algoritm olimpic: eliminam min si max daca avem suficiente note (>= 3)
-    // Daca avem < 3 note, calculam media simpla
+    // algoritm olimpic: eliminam min si max daca avem suficiente note (>= 3)
+    // daca avem < 3 note, calculam media simpla
     let processingGrades = grades.map(g => g.value);
 
     if (processingGrades.length >= 3) {
       const min = Math.min(...processingGrades);
       const max = Math.max(...processingGrades);
 
-      // Eliminam o singura data minimul si maximul
+      // eliminam o singura data minimul si maximul
       let minRemoved = false;
       let maxRemoved = false;
 

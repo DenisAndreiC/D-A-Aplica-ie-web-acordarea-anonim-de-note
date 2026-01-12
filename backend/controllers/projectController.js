@@ -2,14 +2,14 @@ const { PrismaClient } = require('@prisma/client');
 const axios = require('axios');
 const prisma = new PrismaClient();
 
-// 1. Creem un proiect (cu verificare github )
+// creare proiect cu verificare github
 exports.createProject = async (req, res) => {
   try {
     const { title, description, githubRepo } = req.body;
-    // Luam ownerId din token-ul userului logat (atasat de middleware)
+    // preluare id proprietar din token
     const ownerId = req.user.userId;
 
-    // Daca utilizatorul trimite un repo, verificam daca exista
+    // daca utilizatorul trimite un repo, verificam daca exista
     let externalData = null;
     if (githubRepo) {
       try {
@@ -18,13 +18,12 @@ exports.createProject = async (req, res) => {
           stars: response.data.stargazers_count,
           language: response.data.language
         };
-        console.log("Date de pe GitHub:", externalData);
       } catch (err) {
-        console.log("Repo-ul GitHub nu a fost gasit sau eroare API");
+        // repo nu a fost gasit
       }
     }
 
-    // Salvam în baza noastra (inclusiv descrierea poate contine info de la GitHub)
+    // salvare in baza de date
     const newProject = await prisma.project.create({
       data: {
         title,
@@ -42,7 +41,7 @@ exports.createProject = async (req, res) => {
   }
 };
 
-// 2. pt a vedea toate proiectele (Administrator/Profesor)
+// vizualizare toate proiectele (admin/profesor)
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
@@ -54,15 +53,15 @@ exports.getAllProjects = async (req, res) => {
   }
 };
 
-// 3. Proiectele mele (Student)
+// proiectele mele (student)
 exports.getMyProjects = async (req, res) => {
   try {
     const userId = req.user.userId;
     const projects = await prisma.project.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: parseInt(userId) },
       include: {
-        deliverables: true,  // Sa vedem ce am incarcat
-        jury: true           // Sa vedem cine ne noteaza (daca e cazul)
+        deliverables: true,  // ce am incarcat
+        jury: true           // cine ma noteaza
       }
     });
     res.json(projects);

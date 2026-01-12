@@ -3,39 +3,39 @@ const prisma = new PrismaClient();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Secretul pentru JWT (ar trebui sa fie in .env)
+// secretul pentru jwt
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_student';
 
-// 1. Inregistrare utilizator nou
+// inregistrare utilizator nou
 exports.register = async (req, res) => {
   try {
     const { fullName, email, password, secretCode } = req.body;
 
-    // Validari de baza
+    // validari de baza
     if (!fullName || !email || !password) {
       return res.status(400).json({ error: 'Toate câmpurile (Nume, Email, Parolă) sunt obligatorii.' });
     }
 
     if (password.length < 6) {
-        return res.status(400).json({ error: 'Parola trebuie să aibă cel puțin 6 caractere.' });
+      return res.status(400).json({ error: 'Parola trebuie să aibă cel puțin 6 caractere.' });
     }
 
-    // Verificam daca userul exista deja
+    // verificam daca userul exista deja
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: 'Există deja un cont cu acest email.' });
     }
 
-    // Hash parola
+    // hash parola
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Determinam rolul pe baza codului secret
+    // determinam rolul pe baza codului secret
     let role = 'STUDENT';
     if (secretCode && secretCode.trim().toLowerCase() === 'profesor') {
       role = 'PROFESSOR';
     }
 
-    // Creare user
+    // creare user
     const newUser = await prisma.user.create({
       data: {
         fullName,
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
       }
     });
 
-    // Nu trimitem parola inapoi
+    // nu trimitem parola inapoi
     const { password: _, ...userWithoutPassword } = newUser;
     res.status(201).json(userWithoutPassword);
 
@@ -55,29 +55,29 @@ exports.register = async (req, res) => {
   }
 };
 
-// 2. Autentificare (Login)
+// autentificare
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.status(400).json({ error: 'Email-ul și parola sunt obligatorii.' });
+      return res.status(400).json({ error: 'Email-ul și parola sunt obligatorii.' });
     }
 
-    // Cautam userul
+    // cautam userul
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(401).json({ error: 'Email sau parolă incorectă.' });
     }
 
-    // Verificam parola
+    // verificam parola
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
       return res.status(401).json({ error: 'Email sau parolă incorectă.' });
     }
 
-    // Generam token
+    // generam token
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       JWT_SECRET,
@@ -101,7 +101,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// 3. Obtine toti utilizatorii (pentru Profesor/Debug)
+// obtine toti utilizatorii
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({

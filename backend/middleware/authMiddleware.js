@@ -1,14 +1,13 @@
 const jwt = require('jsonwebtoken');
 
-// Secretul trebuie sa fie acelasi cu cel din userController
+// secretul trebuie sa fie acelasi cu cel din userController
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_student';
 
 const authenticateToken = (req, res, next) => {
-    // 1. Luam header-ul de autorizare (ex: "Bearer <token>")
+    // luam header-ul de autorizare
     const authHeader = req.headers['authorization'];
 
-    // 2. Extragem token-ul
-    // 3. Verificam token-ul
+    // extragem si verificam token-ul
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
@@ -20,7 +19,7 @@ const authenticateToken = (req, res, next) => {
             return res.status(403).json({ error: 'Token invalid sau expirat.' });
         }
 
-        // 4. Daca e ok, atasam user-ul la request pentru a fi folosit in controllere
+        // atasam user-ul la request
         req.user = user;
         next();
     });
