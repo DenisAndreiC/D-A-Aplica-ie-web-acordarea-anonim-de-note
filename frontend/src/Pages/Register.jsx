@@ -1,106 +1,107 @@
 import { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 export default function Register() {
-  const [nume, setNume] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [parola, setParola] = useState("");
+  const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMsg("");
+    setError("");
     setLoading(true);
 
     try {
-      const url = `${API_BASE}/api/users`;
-
-      // CORECTURA AICI: Folosim cheile pe care le așteaptă Prisma (fullName, password)
       const payload = {
-        fullName: nume,
-        email: email,
-        password: parola,
-        role: "STUDENT"
+        fullName,
+        email,
+        password,
+        role: "STUDENT" // Implicit
       };
 
-      const res = await axios.post(url, payload);
+      await api.post("/api/auth/register", payload);
 
-      setMsg("Cont creat cu succes ✅ (Acum poți merge la Login)");
-      console.log("register response:", res.data);
+      // Redirect la login
+      navigate("/login");
     } catch (err) {
-      const text =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Eroare la înregistrare";
-
-      setMsg(`❌ ${text}`);
-      console.error("register error:", err);
+      setError(
+        err.response?.data?.error ||
+        "Eroare la înregistrare. Încearcă alt email."
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
-      <h1 className="text-xl font-semibold mb-1">Register</h1>
-      <p className="text-sm text-gray-600 mb-6">
-        Trimite date către <code>{API_BASE}/api/users</code>
-      </p>
+    <div className="flex min-h-[80vh] items-center justify-center">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md border border-gray-100">
+        <h1 className="mb-6 text-2xl font-bold text-center text-gray-800">Înregistrare</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Nume</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={nume}
-            onChange={(e) => setNume(e.target.value)}
-            placeholder="ex: Popescu Ana"
-            required
-          />
+        {error && (
+          <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Nume Complet</label>
+            <input
+              type="text"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Ex: Popescu Ion"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="student@exemplu.ro"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Parolă</label>
+            <input
+              type="password"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimum 6 caractere"
+              required
+              minLength={4}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Se creează contul..." : "Creează cont"}
+          </button>
+        </form>
+
+        <div className="mt-4 text-center text-sm text-gray-600">
+          Ai deja cont?{" "}
+          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Autentifică-te
+          </Link>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="ex: student@ase.ro"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Parolă</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={parola}
-            onChange={(e) => setParola(e.target.value)}
-            type="password"
-            placeholder="••••••••"
-            required
-          />
-        </div>
-
-        <button
-          disabled={loading}
-          className="w-full bg-black text-white rounded-lg py-2 disabled:opacity-60"
-        >
-          {loading ? "Se trimite..." : "Creează cont"}
-        </button>
-
-        {msg && <div className="text-sm mt-2">{msg}</div>}
-      </form>
-
-      <div className="text-xs text-gray-500 mt-6">
-        Ai cont? <Link className="underline" to="/login">Mergi la Login</Link>
       </div>
     </div>
   );
