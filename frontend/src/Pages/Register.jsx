@@ -64,6 +64,11 @@ export default function Register() {
           Creează Cont
         </h2>
 
+        {/* DEBUG TEMPORAR */}
+        <p className="text-xs text-center text-gray-400 mb-4 break-all">
+          Connecting to: {import.meta.env.VITE_API_URL || "http://localhost:3000"}
+        </p>
+
         {error && (
           <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-600 border border-red-100 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
