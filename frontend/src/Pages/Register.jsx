@@ -51,7 +51,7 @@ export default function Register() {
 
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.error || "Eroare la înregistrare");
+      setError(err.response?.data?.error || err.message || "Eroare la înregistrare");
     } finally {
       setLoading(false);
     }
