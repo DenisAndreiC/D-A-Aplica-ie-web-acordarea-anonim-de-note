@@ -40,8 +40,8 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md border border-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose-200 to-orange-100 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white/80 backdrop-blur-xl p-8 shadow-xl border border-white/50 transition-all hover:shadow-orange-200/50">
         <h1 className="mb-6 text-2xl font-bold text-center text-gray-800">Autentificare</h1>
 
         {error && (

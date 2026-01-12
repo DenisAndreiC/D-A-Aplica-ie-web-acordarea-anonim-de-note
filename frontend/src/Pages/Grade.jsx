@@ -42,36 +42,36 @@ export default function Grade() {
   }
 
   return (
-    <div className="min-h-screen bg-indigo-50/30 p-6 flex items-center justify-center">
-      <div className="max-w-md w-full space-y-6">
+    <div className="min-h-screen bg-orange-50/30 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
 
-        <button onClick={() => navigate(-1)} className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1 transition-colors">
+        <Link to="/dashboard" className="inline-flex items-center text-gray-500 hover:text-orange-600 mb-6 font-medium transition-colors">
           &larr; Înapoi
-        </button>
+        </Link>
 
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="bg-blue-600 px-6 py-4">
+          <div className="bg-gradient-to-r from-rose-300 to-orange-200 px-6 py-4">
             <h1 className="text-xl font-bold text-white">Acordă Notă</h1>
-            <p className="text-blue-100 text-sm opacity-90">Evaluezi livrabilul #{deliverableId}</p>
+            <p className="text-white/80 text-sm font-medium">Evaluezi livrabilul #{deliverableId}</p>
           </div>
 
           <div className="p-6 space-y-6">
             {message && (
-              <div className={`p-3 rounded-lg text-sm text-center ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+              <div className={`p-3 rounded-lg text-sm text-center font-medium ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
                 {message}
               </div>
             )}
 
             <form onSubmit={handleGrade} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Nota ta (1.00 - 10.00)</label>
+                <label className="block text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Nota ta (1.00 - 10.00)</label>
                 <div className="relative">
                   <input
                     type="number"
                     step="0.01"
                     min="1"
                     max="10"
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-lg font-bold text-gray-800 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-center text-lg font-bold text-gray-800 focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition"
                     placeholder="10.00"
                     value={value}
                     onChange={e => setValue(e.target.value)}
@@ -79,7 +79,7 @@ export default function Grade() {
                   />
                 </div>
               </div>
-              <button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md transition-all active:scale-95">
+              <button className="w-full bg-gradient-to-r from-pink-400 to-orange-400 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:shadow-orange-200/50 shadow-md transition-all active:scale-95">
                 Trimite Nota
               </button>
             </form>
