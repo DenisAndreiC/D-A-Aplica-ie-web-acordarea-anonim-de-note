@@ -18,17 +18,19 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // ✅ La tine register = POST /api/users
       const url = `${API_BASE}/api/users`;
 
-      // ⚠️ IMPORTANT:
-      // backend-ul tău (createUser) poate cere alte chei decât "nume" / "parola"
-      // Pentru început trimitem astea 3.
-      const payload = { nume, email, parola };
+      // CORECTURA AICI: Folosim cheile pe care le așteaptă Prisma (fullName, password)
+      const payload = {
+        fullName: nume,
+        email: email,
+        password: parola,
+        role: "STUDENT"
+      };
 
       const res = await axios.post(url, payload);
 
-      setMsg("Cont creat cu succes ✅ (vezi consola)");
+      setMsg("Cont creat cu succes ✅ (Acum poți merge la Login)");
       console.log("register response:", res.data);
     } catch (err) {
       const text =
