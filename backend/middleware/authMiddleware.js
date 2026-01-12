@@ -1,25 +1,29 @@
 const jwt = require('jsonwebtoken');
 
-// Acelasi secret ca in userController
+// Secretul trebuie sa fie acelasi cu cel din userController
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_student';
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  // Tokenul vine de obicei ca "Bearer <token>"
-  const token = authHeader && authHeader.split(' ')[1];
+    // 1. Luam header-ul de autorizare (ex: "Bearer <token>")
+    const authHeader = req.headers['authorization'];
 
-  if (!token) {
-    return res.status(401).json({ error: 'Acces interzis. Token lipsa.' });
-  }
+    // 2. Extragem token-ul
+    const token = authHeader && authHeader.split(' ')[1];
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Token invalid sau expirat.' });
+    if (!token) {
+        return res.status(401).json({ error: 'Acces interzis. Token lipsa.' });
     }
-    // Salvam userul decodat in request (sa il folosim in controllere)
-    req.user = user;
-    next();
-  });
+
+    // 3. Verificam token-ul
+    jwt.verify(token, 'SECRET_KEY', (err, user) => {
+        if (err) {
+            return res.status(403).json({ error: 'Token invalid sau expirat.' });
+        }
+
+        // 4. Daca e ok, atasam user-ul la request pentru a fi folosit in controllere
+        req.user = user;
+        next();
+    });
 };
 
 module.exports = authenticateToken;

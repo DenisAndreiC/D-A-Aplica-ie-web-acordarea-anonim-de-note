@@ -6,19 +6,26 @@ export default function Deliverables() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [deliverables, setDeliverables] = useState([]);
+  const [project, setProject] = useState(null); // Detalii proiect
   const [formData, setFormData] = useState({ resourceUrl: "", description: "" });
   const [message, setMessage] = useState("");
 
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
   useEffect(() => {
-    fetchDeliverables();
+    fetchProjectAndDeliverables();
   }, [projectId]);
 
-  async function fetchDeliverables() {
+  async function fetchProjectAndDeliverables() {
     try {
-      const res = await api.get(`/api/deliverables/project/${projectId}`);
-      setDeliverables(res.data);
+      const [delRes, projRes] = await Promise.all([
+        api.get(`/api/deliverables/project/${projectId}`),
+        api.get(`/api/projects/${projectId}`)
+      ]);
+      setDeliverables(delRes.data);
+      setProject(projRes.data);
     } catch (error) {
-      console.error("Eroare incarcare livrabile:", error);
+      console.error("Eroare incarcare date:", error);
     }
   }
 
@@ -106,47 +113,51 @@ export default function Deliverables() {
             </div>
           </div>
 
-          {/* Coloana Dreapta: Formular Adaugare */}
-          <div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
-              <h2 className="font-bold text-gray-800 mb-4">Adaugă Resursă</h2>
-              {message && (
-                <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-                  {message}
-                </div>
-              )}
+          {/* Coloana Dreapta: Formular Adaugare - DOAR PENTRU PROPRIETAR */}
+          {/* Folosim == pentru a permite comparatie string vs number */}
+          {project?.ownerId == currentUser.id && (
+            <div>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
+                <h2 className="font-bold text-gray-800 mb-4">Adaugă Resursă</h2>
+                {message && (
+                  <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes("succes") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                    {message}
+                  </div>
+                )}
 
-              <form onSubmit={handleAdd} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Link (Video/Repo)</label>
-                  <input
-                    type="url"
-                    required
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
-                    placeholder="https://..."
-                    value={formData.resourceUrl}
-                    onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Descriere</label>
-                  <textarea
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
-                    rows="3"
-                    required
-                    placeholder="Ce reprezintă acest link?"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  ></textarea>
-                </div>
-                <button className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
-                  Adaugă
-                </button>
-              </form>
+                <form onSubmit={handleAdd} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Link (Video/Repo)</label>
+                    <input
+                      type="url"
+                      required
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                      placeholder="https://..."
+                      value={formData.resourceUrl}
+                      onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Descriere</label>
+                    <textarea
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition resize-none"
+                      rows="3"
+                      required
+                      placeholder="Ce reprezintă acest link?"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    ></textarea>
+                  </div>
+                  <button className="w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                    Adaugă
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
 
         </div>
+
       </div>
     </div>
   );

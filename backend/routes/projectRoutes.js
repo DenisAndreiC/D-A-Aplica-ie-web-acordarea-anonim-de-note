@@ -9,5 +9,6 @@ router.get('/my-projects', authenticateToken, projectController.getMyProjects);
 
 // Ruta publica momentan (sau pentru profesor)
 router.get('/', projectController.getAllProjects);
+router.get('/:id', authenticateToken, projectController.getProjectById);
 
 module.exports = router;

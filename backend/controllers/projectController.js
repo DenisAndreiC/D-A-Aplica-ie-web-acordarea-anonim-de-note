@@ -71,3 +71,19 @@ exports.getMyProjects = async (req, res) => {
     res.status(500).json({ error: 'Eroare la preluarea proiectelor' });
   }
 };
+
+// 4. Detalii proiect (pentru owner check)
+exports.getProjectById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await prisma.project.findUnique({
+      where: { id: parseInt(id) },
+      include: { owner: true }
+    });
+    if (!project) return res.status(404).json({ error: 'Proiect inexistent' });
+    res.json(project);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Eroare server' });
+  }
+};
