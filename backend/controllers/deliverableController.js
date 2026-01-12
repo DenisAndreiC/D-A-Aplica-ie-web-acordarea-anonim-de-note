@@ -5,14 +5,27 @@ const prisma = new PrismaClient();
 exports.createDeliverable = async (req, res) => {
   try {
     const { projectId, resourceUrl, description } = req.body;
+    const userId = req.user.userId;
 
-    // verificare existenta proiect deja
+    // validare input
+    if (!projectId || isNaN(parseInt(projectId))) {
+      return res.status(400).json({ error: 'ID-ul proiectului este invalid.' });
+    }
+    if (!resourceUrl) {
+      return res.status(400).json({ error: 'Link-ul resursei este obligatoriu.' });
+    }
+
+    // verificare existenta proiect si drepturi (doar proprietarul poate adauga)
     const project = await prisma.project.findUnique({
       where: { id: parseInt(projectId) }
     });
 
     if (!project) {
-      return res.status(404).json({ error: 'Proiectul nu a fost gasit' });
+      return res.status(404).json({ error: 'Proiectul nu a fost găsit.' });
+    }
+
+    if (project.ownerId !== userId) {
+      return res.status(403).json({ error: 'Nu ai permisiunea să adaugi livrabile la acest proiect.' });
     }
 
     const newDeliverable = await prisma.deliverable.create({
@@ -25,12 +38,13 @@ exports.createDeliverable = async (req, res) => {
 
     res.status(201).json(newDeliverable);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Eroare la adaugarea livrabilului' });
+    console.error("Create Deliverable Error:", error);
+    // returnam mesajul de eroare real in development pentru debugging
+    res.status(500).json({ error: `Eroare server: ${error.message}` });
   }
 };
 
-// pentru a vedea livrabilele unui proiect
+// vizualizare livrabile proiect
 exports.getProjectDeliverables = async (req, res) => {
   try {
     const { projectId } = req.params;

@@ -1,104 +1,142 @@
-import { useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 export default function Register() {
-  const [nume, setNume] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [parola, setParola] = useState("");
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    secretCode: "",
+  });
 
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  // daca e deja logat, redirect la dashboard
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
+  async function handleRegister(e) {
     e.preventDefault();
-    setMsg("");
+    setError("");
     setLoading(true);
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Parolele nu coincid!");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // ✅ La tine register = POST /api/users
-      const url = `${API_BASE}/api/users`;
+      const res = await api.post("/api/auth/register", {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        secretCode: formData.secretCode
+      });
 
-      // ⚠️ IMPORTANT:
-      // backend-ul tău (createUser) poate cere alte chei decât "nume" / "parola"
-      // Pentru început trimitem astea 3.
-      const payload = { nume, email, parola };
+      // verificare rol
+      if (formData.secretCode?.trim().toLowerCase() === "profesor" && res.data.role !== "PROFESSOR") {
+        setError("DEBUG: Serverul a ignorat codul secret! Rol primit: " + res.data.role);
+        return;
+      }
 
-      const res = await axios.post(url, payload);
-
-      setMsg("Cont creat cu succes ✅ (vezi consola)");
-      console.log("register response:", res.data);
+      navigate("/login");
     } catch (err) {
-      const text =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Eroare la înregistrare";
-
-      setMsg(`❌ ${text}`);
-      console.error("register error:", err);
+      setError(err.response?.data?.error || "Eroare la înregistrare");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
-      <h1 className="text-xl font-semibold mb-1">Register</h1>
-      <p className="text-sm text-gray-600 mb-6">
-        Trimite date către <code>{API_BASE}/api/users</code>
-      </p>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose-200 to-orange-100 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white/95 backdrop-blur-xl p-8 shadow-2xl transition-all hover:shadow-orange-500/20 my-8">
+        <h2 className="mb-6 text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-600">
+          Creează Cont
+        </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Nume</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={nume}
-            onChange={(e) => setNume(e.target.value)}
-            placeholder="ex: Popescu Ana"
-            required
-          />
-        </div>
+        {error && (
+          <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-600 border border-red-100 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </div>
+        )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="ex: student@ase.ro"
-            required
-          />
-        </div>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 pl-1">Nume Complet</label>
+            <input
+              type="text"
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-medium text-gray-800 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all placeholder-gray-400"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 pl-1">Email</label>
+            <input
+              type="email"
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-medium text-gray-800 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all placeholder-gray-400"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 pl-1">Parolă</label>
+            <input
+              type="password"
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-medium text-gray-800 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all placeholder-gray-400"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 pl-1">Confirmă Parola</label>
+            <input
+              type="password"
+              required
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 font-medium text-gray-800 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all placeholder-gray-400"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Parolă</label>
-          <input
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring"
-            value={parola}
-            onChange={(e) => setParola(e.target.value)}
-            type="password"
-            placeholder="••••••••"
-            required
-          />
-        </div>
+          <div className="pt-2">
+            <label className="block text-xs font-bold text-pink-600/80 uppercase mb-1 pl-1">Cod Secret (Opțional - Profesori)</label>
+            <input
+              type="text"
+              placeholder="Codul pentru profesori"
+              className="w-full rounded-xl border border-pink-100 bg-pink-50/50 px-4 py-2.5 font-medium text-gray-800 outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all placeholder-pink-300"
+              value={formData.secretCode || ""}
+              onChange={(e) => setFormData({ ...formData, secretCode: e.target.value })}
+            />
+          </div>
 
-        <button
-          disabled={loading}
-          className="w-full bg-black text-white rounded-lg py-2 disabled:opacity-60"
-        >
-          {loading ? "Se trimite..." : "Creează cont"}
-        </button>
-
-        {msg && <div className="text-sm mt-2">{msg}</div>}
-      </form>
-
-      <div className="text-xs text-gray-500 mt-6">
-        Ai cont? <Link className="underline" to="/login">Mergi la Login</Link>
+          <button
+            className="w-full rounded-xl bg-gradient-to-r from-pink-600 to-orange-500 px-4 py-3.5 text-white font-bold tracking-wide shadow-lg shadow-pink-500/30 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Se creează contul..." : "Înregistrează-te"}
+          </button>
+        </form>
+        <p className="mt-8 text-center text-sm font-medium text-gray-600">
+          Ai deja cont? <a href="/login" className="text-pink-600 hover:text-orange-600 transition-colors font-bold underline decoration-2 underline-offset-2">Autentifică-te</a>
+        </p>
       </div>
     </div>
   );

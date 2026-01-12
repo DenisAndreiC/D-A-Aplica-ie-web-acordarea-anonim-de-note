@@ -21,6 +21,7 @@ model User {
   password  String   
   fullName  String
   role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
   
   // Relații:
   projects       Project[]       @relation("ProjectOwner") // Proiectele mele
@@ -38,6 +39,7 @@ model Project {
   
   deliverables Deliverable[]
   jury         JuryAssignment[]
+  createdAt    DateTime @default(now())
 }
 
 // 4. Tabela Livrabile (ex: Link GitHub, Video)
@@ -48,6 +50,8 @@ model Deliverable {
   resourceUrl String   // Link-ul efectiv
   description String?
   
+  createdAt   DateTime @default(now())
+
   grades      Grade[]
 }
 
@@ -71,4 +75,5 @@ model Grade {
   
   evaluatorId   Int
   evaluator     User        @relation(fields: [evaluatorId], references: [id])
+  createdAt     DateTime    @default(now())
 }
